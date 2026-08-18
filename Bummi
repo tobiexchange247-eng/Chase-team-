@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PLS ACCEPT THE GIFT</title>
+  <meta name="color-scheme" content="light dark">
+  <style>
+    /* ---------- Theme & Reset ---------- */
+    :root{
+      --bg1:#ffd7e3;
+      --bg2:#ffb3ca;
+      --deep-rose:#b80f2f;
+      --accent:#ff6b98;
+      --glass: rgba(255,255,255,0.45);
+      --glass-border: rgba(255,255,255,0.6);
+      --muted:#6b4950;
+      --card-w:820px;
+      --radius:18px;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:var(--sans);-webkit-font-smoothing:antialiased;background:linear-gradient(135deg,var(--bg1),var(--bg2));color:var(--muted);overflow:hidden}
+
+    /* ---------- Animated Gradient Background ---------- */
+    .bg {
+      position:fixed; inset:0; z-index:0; overflow:hidden;
+      background:linear-gradient(120deg,#ffd7e3 0%, #ff8fb9 35%, #e44a6b 65%, #6b0f2f 100%);
+      animation: bgShift 12s ease-in-out infinite alternate;
+      filter: saturate(1.05);
+    }
+    @keyframes bgShift{
+      0%{transform: scale(1) rotate(0deg) translateZ(0); filter: blur(0px) saturate(1.02)}
+      50%{transform: scale(1.05) rotate(1deg) translateZ(0); filter: blur(6px) saturate(1.15)}
+      100%{transform: scale(1) rotate(-1deg) translateZ(0); filter: blur(3px) saturate(1.05)}
+    }
+
+    /* floating emoji layer (hearts rising) */
+    .float-layer{ position:fixed; inset:0; pointer-events:none; z-index:1; overflow:hidden; }
+
+    /* ---------- Center Stage & Glass Card ---------- */
+    .stage{ position:relative; z-index:6; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:28px; }
+    .card{
+      width: min(94%, var(--card-w));
+      max-width:960px;
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0.35));
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 12px 40px rgba(180,40,80,0.14);
+      backdrop-filter: blur(10px) saturate(1.05);
+      -webkit-backdrop-filter: blur(10px) saturate(1.05);
+      padding:28px;
+      position:relative;
+      overflow:visible;
+    }
+    header .heading{
+      font-size:1.6rem;
+      margin:0 0 6px 0;
+      color:#3a1e26;
+      letter-spacing:0.6px;
+      font-weight:800;
+    }
+    header .sub{
+      margin:0;color: #5b3940; opacity:0.95; font-size:0.98rem;
+    }
+
+    /* ---------- Screens ---------- */
+    .screens{ position:relative; min-height:260px; margin-top:12px; }
+    .screen{
+      position:absolute; inset:0; display:flex; flex-direction:column; gap:12px;
+      opacity:0; transform:translateY(10px) scale(0.995); pointer-events:none;
+      transition: opacity 480ms ease, transform 480ms cubic-bezier(.2,.9,.3,1);
+    }
+    .screen.active{ opacity:1; transform:translateY(0) scale(1); pointer-events:auto; }
+
+    .text{ white-space:pre-wrap; line-height:1.6; color:#4a2e33; font-size:1.03rem; }
+    .poem{ font-style:normal; }
+
+    /* ---------- Controls ---------- */
+    .controls{ margin-top:10px; display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+    .btn{
+      -webkit-tap-highlight-color: transparent;
+      appearance:none; border:0; padding:10px 16px; border-radius:999px;
+      font-weight:800; letter-spacing:0.6px; cursor:pointer;
+      color:#fff; background: linear-gradient(180deg,var(--accent), #ff4f81);
+      box-shadow: 0 8px 22px rgba(255,90,140,0.18);
+      transition: transform 120ms ease, box-shadow 120ms ease;
+    }
+    .btn:active{ transform: translateY(2px); }
+    .btn.ghost{ background:transparent; color:var(--deep-rose); border:1px solid rgba(184,15,47,0.08); box-shadow:none; font-weight:700; }
+
+    /* runaway No button tuned for absolute movement */
+    .btn.no{
+      position: absolute; z-index:80; right:20px; top:14px; transform: none;
+      background: linear-gradient(180deg,#ff9eb8,#ff6b98); color:#fff;
+      box-shadow: 0 10px 30px rgba(200,40,90,0.12);
+    }
+
+    /* highlighted question */
+    .big-red{ color: var(--deep-rose); font-weight:900; font-size:1.18rem; text-align:center; }
+
+    /* result text */
+    .result{ margin-top:14px; padding:12px; border-radius:12px; background: rgba(255,250,250,0.6); border:1px solid rgba(255,255,255,0.6); color:#7a2637; font-weight:700; }
+
+    /* responsive */
+    @media (max-width:520px){
+      .card{ padding:18px; border-radius:14px; }
+      header .heading{ font-size:1.35rem }
+      .text{ font-size:0.98rem }
+      .btn{ padding:10px 12px; font-size:0.95rem; }
+    }
+
+    /* ---------- small decorative bottom flourish ---------- */
+    .footer-note{ font-size:0.86rem; color:rgba(60,30,36,0.7); margin-top:14px; text-align:center; }
+
+    /* ---------- small subtle sparkle animation on heading ---------- */
+    .sparkle{ display:inline-block; transform-origin:center; animation: sparkle 2.8s ease-in-out infinite; }
+    @keyframes sparkle{
+      0%{ transform:translateY(0) scale(1) rotate(0); opacity:1 }
+      50%{ transform:translateY(-4px) scale(1.04) rotate(6deg); opacity:0.92 }
+      100%{ transform:translateY(0) scale(1) rotate(0); opacity:1 }
+    }
+
+    /* small focus styles */
+    .btn:focus{ outline:3px solid rgba(255,110,140,0.18); outline-offset:4px; border-radius:999px; }
+
+  </style>
+</head>
+<body>
+  <div class="bg" aria-hidden="true"></div>
+  <div class="float-layer" id="floatLayer" aria-hidden="true"></div>
+
+  <div class="stage" role="main">
+    <div class="card" role="article" aria-labelledby="mainHeading">
+      <header>
+        <h1 class="heading" id="mainHeading">PLS ACCEPT THE GIFT <span class="sparkle">🎁</span></h1>
+        <p class="sub">A little something special put together just for you.</p>
+      </header>
+
+      <main class="screens" id="screens" aria-live="polite">
+        <!-- Screen 1 -->
+        <section class="screen active" data-screen="1" id="screen1">
+          <div class="text poem">A little something special put together just for you.</div>
+          <div class="controls" style="position:relative;">
+            <button class="btn" id="yes1" aria-label="Yes, open the gift">YES!</button>
+            <button class="btn no" id="no1" aria-label="No, I don't want it">No</button>
+          </div>
+        </section>
+
+        <!-- Screen 2 -->
+        <section class="screen" data-screen="2" id="screen2" aria-hidden="true">
+          <h2 class="heading" style="font-size:1.25rem">Guess what Tobi wrote for you ?? <span>💌</span></h2>
+          <div class="text poem">From a simple 'hello' online, two strangers started to play. Day after day, night after night, you kept pulling me in your way. I never planned for more than words, just chats that came and went… But the universe smirked and whispered low, "This one? You’re already spent."</div>
+          <div class="controls"><button class="btn" id="next2">Click next to see more</button></div>
+        </section>
+
+        <!-- Screen 3 -->
+        <section class="screen" data-screen="3" id="screen3" aria-hidden="true">
+          <h2 class="heading" style="font-size:1.25rem">My Honest Thoughts <span>💭</span></h2>
+          <div class="text poem">If someone had told me that night that our conversation would go beyond the simple intro we did together… I might have argued. Since we started talking, you said we would talk every day of our lives. I like you… genuinely. I like how open-minded you are. And those beautiful snaps you send me? Yeah… they do something to me every single time.</div>
+          <div class="controls"><button class="btn" id="next3">Continue ❤️</button></div>
+        </section>
+
+        <!-- Screen 4 -->
+        <section class="screen" data-screen="4" id="screen4" aria-hidden="true">
+          <h2 class="heading" style="font-size:1.25rem">Why You Are Mine <span>✨</span></h2>
+          <div class="text poem">
+1. Adebisi – Your name means 'the crown has given birth to more.' From day one you crowned my ordinary life with something addictive.
+
+2. Joyce – Your second name means joy. And baby, the joy you give me… I never want to lose that feeling.
+
+3. Oluwatobiloba – My name means 'God is a great King.' And I believe the great King already wrote your name next to mine. I’m done delaying what fate already started.
+          </div>
+          <div class="controls"><button class="btn" id="next4">Next to Question</button></div>
+        </section>
+
+        <!-- Screen 5 -->
+        <section class="screen" data-screen="5" id="screen5" aria-hidden="true">
+          <h2 class="heading" style="font-size:1.25rem">The Question <span>💍</span></h2>
+          <div class="text big-red">Will You be my woman? Bummi Adebisi OTAMITE ❤️</div>
+
+          <div class="controls" id="finalControls" style="justify-content:center;margin-top:12px;">
+            <button class="btn" id="yes5">YES!</button>
+            <button class="btn ghost" id="no5">No</button>
+          </div>
+
+          <div id="finalResult" aria-live="polite"></div>
+        </section>
+      </main>
+
+      <p class="footer-note">Made with heart & lots of courage — tap YES and accept the bouquet 💐</p>
+    </div>
+  </div>
+
+  <!-- canvas for confetti/hearts -->
+  <canvas id="party" style="position:fixed;inset:0;z-index:9;pointer-events:none;"></canvas>
+
+  <script>
+    /* ---------- Small utilities ---------- */
+    const qs = sel => document.querySelector(sel);
+    const qsa = sel => Array.from(document.querySelectorAll(sel));
+    function rand(min, max){ return Math.random()*(max-min)+min; }
+    function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+
+    /* ---------- screen navigation ---------- */
+    const screens = qsa('.screen');
+    function showScreen(n){
+      screens.forEach(s=> {
+        const id = Number(s.dataset.screen);
+        if(id === n){ s.classList.add('active'); s.removeAttribute('aria-hidden'); }
+        else { s.classList.remove('active'); s.setAttribute('aria-hidden','true'); }
+      });
+      // update heading area (optional subtle pulse)
+      const card = document.querySelector('.card');
+      card.animate([{transform:'scale(1)'},{transform:'scale(1.01)'},{transform:'scale(1)'}],{duration:480, easing:'ease-out'});
+    }
+
+    /* ---------- Floating emoji hearts (background) ---------- */
+    const floatLayer = qs('#floatLayer');
+    const emojiSet = ['❤️','💖','✨','💕','🌸'];
+    function spawnFloat(){
+      const el = document.createElement('div');
+      const size = Math.floor(rand(18,42));
+      el.textContent = emojiSet[Math.floor(rand(0,emojiSet.length))];
+      el.style.position = 'absolute';
+      el.style.left = (rand(6,94)) + '%';
+      el.style.bottom = '-6%';
+      el.style.fontSize = size + 'px';
+      el.style.opacity = String(rand(0.6,1));
+      el.style.pointerEvents = 'none';
+      const duration = rand(6000,14000);
+      el.style.transition = `transform ${duration}ms cubic-bezier(.2,.9,.3,1), opacity ${duration/2}ms linear`;
+      floatLayer.appendChild(el);
+      // trigger transform in next tick
+      requestAnimationFrame(()=> {
+        const driftX = rand(-12,12);
+        el.style.transform = `translate(${driftX}vw, -120vh) rotate(${rand(-60,60)}deg)`;
+        el.style.opacity = '0';
+      });
+      // cleanup
+      setTimeout(()=> el.remove(), duration + 200);
+    }
+    // spawn floats continuously, staggered
+    setInterval(()=> spawnFloat(), 700);
+    for(let i=0;i<6;i++){ setTimeout(spawnFloat, i*180); }
+
+    /* ---------- Runaway "No" button on Screen 1 ---------- */
+    const no1 = qs('#no1');
+    function placeNoRandom(btn){
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const bw = btn.offsetWidth;
+      const bh = btn.offsetHeight;
+      // keep away from top header area: margin 120px; keep within viewport
+      const minX = 10, maxX = vw - bw - 10;
+      const minY = 120, maxY = vh - bh - 40;
+      const x = rand(minX, Math.max(minX, maxX));
+      const y = rand(minY, Math.max(minY, maxY));
+      btn.style.left = x + 'px';
+      btn.style.top = y + 'px';
+    }
+    // initial placement after layout
+    window.addEventListener('load', ()=> placeNoRandom(no1));
+    // run away on hover/click/touchstart
+    function runawayHandler(e){
+      e.preventDefault && e.preventDefault();
+      placeNoRandom(no1);
+    }
+    no1.addEventListener('mouseenter', runawayHandler);
+    no1.addEventListener('click', runawayHandler);
+    no1.addEventListener('touchstart', runawayHandler, {passive:false});
+
+    /* ---------- Buttons navigation ---------- */
+    qs('#yes1').addEventListener('click', ()=> {
+      // small heart burst visually
+      burstAt(window.innerWidth/2, window.innerHeight*0.35, 12);
+      showScreen(2);
+    });
+    qs('#next2').addEventListener('click', ()=> showScreen(3));
+    qs('#next3').addEventListener('click', ()=> showScreen(4));
+    qs('#next4').addEventListener('click', ()=> showScreen(5));
+
+    /* ---------- Final question logic ---------- */
+    const yes5 = qs('#yes5');
+    const no5 = qs('#no5');
+    const finalResult = qs('#finalResult');
+    let no5Count = 0;
+
+    no5.addEventListener('click', ()=> {
+      no5Count++;
+      if(no5Count === 1) no5.textContent = 'Are you sure? 🤨';
+      else if(no5Count === 2) no5.textContent = 'Think about it again 😌';
+      else {
+        // respectful popup
+        qs('#finalControls').style.display = 'none';
+        const m = document.createElement('div');
+        m.className = 'result';
+        m.textContent = "Aww okay shyla 😅 I hear you. No pressure at all, I just had to be real with you. We can still vibe, laugh and be us. We are still good friends 😌❤️";
+        finalResult.appendChild(m);
+      }
+    });
+
+    yes5.addEventListener('click', ()=> {
+      // hide buttons and show success text + party
+      qs('#finalControls').style.display = 'none';
+      const m = document.createElement('div');
+      m.className = 'result';
+      m.innerHTML = 'I love you too my shylaaaaaa 🥹❤️ come daddy …daddy have been waiting for this to happen…finalyyyy';
+      finalResult.appendChild(m);
+
+      // huge party: confetti + hearts
+      const cx = window.innerWidth/2, cy = window.innerHeight/2.6;
+      spawnConfetti(cx, cy, 160);
+      spawnEmojiHearts(cx, cy, 60);
+      for(let i=0;i<8;i++){ setTimeout(()=> burstAt(cx + rand(-220,220), cy + rand(-140,140), 30), i*90); }
+      // gentle page pulse
+      document.querySelector('.card').animate([{transform:'scale(1)'},{transform:'scale(1.04)'},{transform:'scale(1)'}], {duration:700, easing:'ease-out'});
+    });
+
+    /* ---------- Canvas party system (confetti & emoji hearts & bursts) ---------- */
+    const canvas = qs('#party');
+    const ctx = canvas.getContext('2d');
+    let DPR = Math.max(1, window.devicePixelRatio || 1);
+    function resizeCanvas(){
+      DPR = Math.max(1, window.devicePixelRatio || 1);
+      canvas.width = Math.round(window.innerWidth * DPR);
+      canvas.height = Math.round(window.innerHeight * DPR);
+      canvas.style.width = window.innerWidth + 'px';
+      canvas.style.height = window.innerHeight + 'px';
+      ctx.setTransform(DPR,0,0,DPR,0,0);
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const particles = [];
+
+    function createConfetti(x,y){
+      return {
+        type:'confetti',
+        x,y,
+        w: rand(6,14),
+        h: rand(8,20),
+        angle: rand(0,Math.PI*2),
+        angularVel: rand(-0.15,0.15),
+        vx: rand(-6,6),
+        vy: rand(-12,-4),
+        color: `hsl(${Math.floor(rand(320,360))}, 85%, ${Math.floor(rand(55,68))}%)`,
+        life:0,
+        ttl: Math.floor(rand(1600,3600))
+      };
+    }
+    function createHeartParticle(x,y){
+      return {
+        type:'heart',
+        x,y,
+        vx: rand(-4,4),
+        vy: rand(-8,-2),
+        size: rand(10,30),
+        angle: rand(-0.6,0.6),
+        angularVel: rand(-0.03,0.03),
+        color: ['#ff4f81','#ff6b98','#ff9eb8','#ff2d6b'][Math.floor(rand(0,4))],
+        life:0,
+        ttl: Math.floor(rand(1400,3600))
+      };
+    }
+    function createBurstDot(x,y){
+      const ang = rand(0,Math.PI*2);
+      const sp = rand(2,10);
+      return {
+        type:'dot',
+        x,y,
+        vx: Math.cos(ang)*sp,
+        vy: Math.sin(ang)*sp,
+        r: rand(3,8),
+        color: `rgba(${Math.floor(rand(220,255))}, ${Math.floor(rand(80,140))}, ${Math.floor(rand(120,220))}, 1)`,
+        life:0,
+        ttl: Math.floor(rand(400,1000))
+      };
+    }
+
+    function spawnConfetti(x,y,count=60){
+      for(let i=0;i<count;i++) particles.push(createConfetti(x + rand(-40,40), y + rand(-30,30)));
+    }
+    function spawnEmojiHearts(x,y,count=20){
+      for(let i=0;i<count;i++) particles.push(createHeartParticle(x + rand(-60,60), y + rand(-30,30)));
+    }
+    function burstAt(x,y,count=18){
+      for(let i=0;i<count;i++) particles.push(createBurstDot(x,y));
+    }
+
+    let last = performance.now();
+    function step(now){
+      const dt = Math.min(40, now - last); last = now;
+      ctx.clearRect(0,0, canvas.width, canvas.height);
+      for(let i = particles.length -1; i>=0; i--){
+        const p = particles[i];
+        p.life += dt;
+        const t = p.life / p.ttl;
+        if(p.type === 'confetti'){
+          p.vy += 0.12 * (dt/16);
+          p.vx += Math.sin((p.life+i)*0.02) * 0.02;
+          p.x += p.vx * (dt/16);
+          p.y += p.vy * (dt/16);
+          p.angle += p.angularVel * (dt/16);
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.angle);
+          ctx.globalAlpha = Math.max(0, 1 - t);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+          ctx.restore();
+        } else if(p.type === 'heart'){
+          p.vy += 0.06 * (dt/16);
+          p.x += p.vx * (dt/16);
+          p.y += p.vy * (dt/16);
+          p.angle += p.angularVel * (dt/16);
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.angle);
+          ctx.scale(p.size/24, p.size/24);
+          ctx.globalAlpha = Math.max(0, 1 - t);
+          // draw emoji heart with a font (clean and quick)
+          ctx.font = '24px serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = p.color;
+          ctx.fillText('❤️', 0, 0);
+          ctx.restore();
+        } else if(p.type === 'dot'){
+          p.vy += 0.18 * (dt/16);
+          p.x += p.vx * (dt/16);
+          p.y += p.vy * (dt/16);
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, 1 - t);
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, Math.max(0, p.r * (1 - t)), 0, Math.PI*2);
+          ctx.fill();
+          ctx.restore();
+        }
+        if(p.life > p.ttl || p.y > window.innerHeight + 200 || p.x < -200 || p.x > window.innerWidth + 200) particles.splice(i,1);
+      }
+      requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+
+    /* ---------- small helpers for mobile accessibility ---------- */
+    // allow keyboard navigation (Enter) on focused buttons
+    qsa('button').forEach(b => b.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' ') e.currentTarget.click(); }));
+
+    /* ---------- keep no1 constrained on resize ---------- */
+    window.addEventListener('resize', ()=> {
+      // gently reposition if out of bounds
+      const rect = no1.getBoundingClientRect();
+      if(rect.left + rect.width > window.innerWidth) placeNoRandom(no1);
+      if(rect.top + rect.height > window.innerHeight) placeNoRandom(no1);
+    });
+
+    /* ---------- small initial focus for accessibility ---------- */
+    window.setTimeout(()=> qs('#yes1').focus(), 700);
+
+  </script>
+</body>
+</html>
